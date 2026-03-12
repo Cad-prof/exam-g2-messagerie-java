@@ -9,7 +9,7 @@
 
         <!-- Entités -->
         <class>com.g2.model.User</class>
-        <class>sn.isi.chat_messagerie.entity.Message</class>
+        <class>com.g2.model.Message</class>
 
         <properties>
             <!-- Connexion PostgreSQL -->
