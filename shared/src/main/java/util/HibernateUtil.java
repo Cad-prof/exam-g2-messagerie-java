@@ -1,5 +1,6 @@
 package util;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
@@ -9,17 +10,23 @@ import javax.persistence.Persistence;
  */
 public class HibernateUtil {
 
-    // "static final" = créé une seule fois au démarrage
-    private static final EntityManagerFactory FACTORY =
-        Persistence.createEntityManagerFactory("messagerie-pu");
+    /**
+     * Utilitaire Hibernate — fournit un EntityManagerFactory unique (singleton).
+     * Le nom "messageriePU" doit correspondre à celui dans persistence.xml.
+     */
 
-    // Méthode statique → accessible sans instancier la classe
-    public static EntityManagerFactory getFactory() {
-        return FACTORY;
+    private static final EntityManagerFactory emf =
+            Persistence.createEntityManagerFactory("messageriePU");
+
+    private HibernateUtil() {}
+
+    public static EntityManager getEntityManager() {
+        return emf.createEntityManager();
     }
 
-    // À appeler à la fin du programme pour libérer les ressources
     public static void close() {
-        FACTORY.close();
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
     }
 }
