@@ -1,9 +1,10 @@
 package com.g2;
 
-import sn.isi.chat_messagerie.dao.MessageDAO;
-import sn.isi.chat_messagerie.dao.UserDAO;
-import sn.isi.chat_messagerie.entity.Message;
-import sn.isi.chat_messagerie.entity.User;
+import com.g2.dao.MessageDAO;
+import com.g2.dao.UserDAO;
+import com.g2.model.Message;
+import com.g2.model.User;
+import com.g2.util.PasswordUtil;
 
 import java.io.*;
 import java.net.Socket;
