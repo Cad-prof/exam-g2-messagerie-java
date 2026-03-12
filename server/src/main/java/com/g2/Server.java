@@ -1,4 +1,4 @@
-package sn.isi.chat_messagerie.server;
+package com.g2;
 
 import java.io.IOException;
 import java.net.ServerSocket;
