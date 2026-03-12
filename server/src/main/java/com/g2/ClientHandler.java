@@ -12,23 +12,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-/**
- * Gère la communication avec UN client dans son propre thread (RG11).
- * Protocole : COMMANDE|param1|param2|...
- *
- * RG1  : username unique (inscription)
- * RG2  : authentification requise pour SEND, HISTORY, MEMBERS, LIST
- * RG3  : un seul login par utilisateur à la fois
- * RG4  : ONLINE à connexion, OFFLINE à déconnexion/perte réseau
- * RG5  : expéditeur ONLINE + destinataire existant
- * RG6  : message stocké si OFFLINE, livré à la reconnexion
- * RG7  : message non vide, max 1000 caractères
- * RG8  : historique chronologique (ORDER BY dans DAO)
- * RG9  : mot de passe haché BCrypt
- * RG10 : perte réseau → déconnexion propre
- * RG11 : thread séparé par client
- * RG12 : journalisation complète
- */
+
 public class ClientHandler implements Runnable {
 
     private static final Logger logger = Logger.getLogger(ClientHandler.class.getName());
@@ -72,9 +56,8 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // =========================================================
+
     // Routeur de commandes
-    // =========================================================
 
     private void handleCommand(String line) {
         if (line.isEmpty()) return;
@@ -93,10 +76,8 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // =========================================================
     // REGISTER|username|password|role
     // RG1 : username unique | RG9 : mot de passe haché
-    // =========================================================
 
     private void handleRegister(String[] parts) {
         if (parts.length < 4) { send("ERROR Usage : REGISTER|username|password|role"); return; }
@@ -131,10 +112,8 @@ public class ClientHandler implements Runnable {
         send("OK Inscription réussie. Vous pouvez vous connecter.");
     }
 
-    // =========================================================
     // LOGIN|username|password
     // RG2 : credentials | RG3 : unicité session | RG4 : ONLINE
-    // =========================================================
 
     private void handleLogin(String[] parts) {
         if (parts.length < 3) { send("ERROR|Usage : LOGIN|username|password"); return; }
@@ -171,9 +150,7 @@ public class ClientHandler implements Runnable {
         handleMembers();
     }
 
-    // =========================================================
     // LOGOUT — RG4 : OFFLINE
-    // =========================================================
 
     private void handleLogout() {
         if (currentUser == null) { send("ERROR|Vous n'êtes pas connecté."); return; }
@@ -181,11 +158,10 @@ public class ClientHandler implements Runnable {
         disconnect();
     }
 
-    // =========================================================
+
     // SEND|receiverUsername|contenu
     // RG2 : authentifié | RG5 : expéditeur ONLINE + destinataire existant
     // RG6 : stockage si OFFLINE | RG7 : contenu valide
-    // =========================================================
 
     private void handleSend(String[] parts) {
         // RG2
@@ -243,10 +219,8 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // =========================================================
     // HISTORY|otherUsername
     // RG2 : authentifié | RG8 : ordre chronologique
-    // =========================================================
 
     private void handleHistory(String[] parts) {
         // RG2
@@ -275,9 +249,8 @@ public class ClientHandler implements Runnable {
         send("HISTORY_END");
     }
 
-    // =========================================================
     // MEMBERS — tous les membres sauf soi-même (RG2)
-    // =========================================================
+
 
     private void handleMembers() {
         if (currentUser == null) { send("ERROR|Vous devez être connecté. (RG2)"); return; }
@@ -292,9 +265,8 @@ public class ClientHandler implements Runnable {
         send("MEMBERS_END");
     }
 
-    // =========================================================
     // LIST — liste avec rôles (RG13 : ORGANISATEUR uniquement)
-    // =========================================================
+
 
     private void handleListUsers() {
         if (currentUser == null) { send("ERROR|Vous devez être connecté. (RG2)"); return; }
@@ -313,9 +285,7 @@ public class ClientHandler implements Runnable {
         send("LIST_END");
     }
 
-    // =========================================================
     // Livraison messages en attente — RG6
-    // =========================================================
 
     private void deliverPendingMessages() {
         List<Message> pending = messageDAO.findPendingMessages(currentUser);
@@ -332,9 +302,8 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // =========================================================
     // Déconnexion propre — RG4 + RG10 + RG12
-    // =========================================================
+
 
     private void disconnect() {
         if (currentUser != null) {
@@ -350,9 +319,7 @@ public class ClientHandler implements Runnable {
         try { socket.close(); } catch (IOException ignored) {}
     }
 
-    // =========================================================
     // Envoi au client
-    // =========================================================
 
     public void send(String message) {
         if (out != null) out.println(message);
