@@ -40,9 +40,7 @@ public class Server {
         }
     }
 
-    // -------------------------
     // Méthodes utilitaires
-    // -------------------------
 
     public static ConcurrentHashMap<String, ClientHandler> getConnectedClients() {
         return connectedClients;

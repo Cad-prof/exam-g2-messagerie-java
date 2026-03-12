@@ -51,9 +51,7 @@ public class Message {
         this.statut = Statut.ENVOYE;
     }
 
-    // -------------------------
     // Lifecycle JPA
-    // -------------------------
 
     @PrePersist
     protected void onCreate() {

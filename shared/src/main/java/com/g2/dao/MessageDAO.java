@@ -102,9 +102,7 @@ public class MessageDAO {
         }
     }
 
-    // -------------------------
     // Tous les messages envoyés par un utilisateur
-    // -------------------------
 
     public List<Message> findMessagesBySender(User sender) {
         EntityManager em = HibernateUtil.getEntityManager();
