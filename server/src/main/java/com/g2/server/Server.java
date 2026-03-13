@@ -12,7 +12,7 @@ import java.util.logging.Logger;
  */
 public class Server {
 
-    private static final int PORT = 5000;
+    private static final int PORT = 8088;
     private static final Logger logger = Logger.getLogger(Server.class.getName());
 
     // Map des clients connectés : username -> handler (RG3)
