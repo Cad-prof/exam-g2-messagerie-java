@@ -1,4 +1,4 @@
-package com.g2;
+package com.g2.server;
 
 import com.g2.dao.MessageDAO;
 import com.g2.dao.UserDAO;
