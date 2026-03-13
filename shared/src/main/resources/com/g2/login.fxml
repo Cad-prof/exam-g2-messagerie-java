@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="sn.isi.chat_messagerie.LoginController"
+      styleClass="root-login"
+      alignment="CENTER" spacing="0"
+      prefWidth="440" prefHeight="560"
+      style="-fx-background-color:#0f172a;">
+
+    <!-- Header -->
+    <VBox alignment="CENTER" spacing="6"
+          style="-fx-padding:32 24 20 24;">
+        <Label text="💬" style="-fx-font-size:36px;"/>
+        <Label text="Messagerie Association"
+               style="-fx-text-fill:#f1f5f9; -fx-font-size:20px; -fx-font-weight:bold;"/>
+        <Label text="Connectez-vous ou créez un compte"
+               style="-fx-text-fill:#64748b; -fx-font-size:12px;"/>
+    </VBox>
+
+    <!-- TabPane -->
+    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE"
+             VBox.vgrow="ALWAYS"
+             style="-fx-background-color:transparent; -fx-tab-min-height:36px;">
+
+        <!-- ═══ Onglet Connexion ═══ -->
+        <Tab text="Connexion">
+            <VBox spacing="14" alignment="CENTER"
+                  style="-fx-padding:24 32 24 32; -fx-background-color:#0f172a;">
+
+                <TextField fx:id="usernameField"
+                           promptText="Nom d'utilisateur"
+                           style="-fx-background-color:#1e293b; -fx-text-fill:#f1f5f9;
+                                  -fx-prompt-text-fill:#475569; -fx-border-color:#334155;
+                                  -fx-border-radius:8; -fx-background-radius:8;
+                                  -fx-padding:10 14 10 14; -fx-font-size:13px;"/>
+
+                <PasswordField fx:id="passwordField"
+                               promptText="Mot de passe"
+                               style="-fx-background-color:#1e293b; -fx-text-fill:#f1f5f9;
+                                      -fx-prompt-text-fill:#475569; -fx-border-color:#334155;
+                                      -fx-border-radius:8; -fx-background-radius:8;
+                                      -fx-padding:10 14 10 14; -fx-font-size:13px;"/>
+
+                <Button text="Se connecter"
+                        onAction="#handleLogin"
+                        maxWidth="Infinity"
+                        style="-fx-background-color:#2563eb; -fx-text-fill:white;
+                               -fx-font-weight:bold; -fx-font-size:14px;
+                               -fx-padding:11 0 11 0; -fx-background-radius:8; -fx-cursor:hand;"/>
+
+                <Label fx:id="statusLabel" text=""
+                       wrapText="true" alignment="CENTER"
+                       style="-fx-text-fill:#ef4444; -fx-font-size:12px;"/>
+            </VBox>
+        </Tab>
+
+        <!-- ═══ Onglet Inscription ═══ -->
+        <Tab text="Inscription">
+            <VBox spacing="14" alignment="CENTER"
+                  style="-fx-padding:24 32 24 32; -fx-background-color:#0f172a;">
+
+                <TextField fx:id="usernameRegField"
+                           promptText="Nom d'utilisateur"
+                           style="-fx-background-color:#1e293b; -fx-text-fill:#f1f5f9;
+                                  -fx-prompt-text-fill:#475569; -fx-border-color:#334155;
+                                  -fx-border-radius:8; -fx-background-radius:8;
+                                  -fx-padding:10 14 10 14; -fx-font-size:13px;"/>
+
+                <PasswordField fx:id="passwordRegField"
+                               promptText="Mot de passe (min 4 caractères)"
+                               style="-fx-background-color:#1e293b; -fx-text-fill:#f1f5f9;
+                                      -fx-prompt-text-fill:#475569; -fx-border-color:#334155;
+                                      -fx-border-radius:8; -fx-background-radius:8;
+                                      -fx-padding:10 14 10 14; -fx-font-size:13px;"/>
+
+                <ComboBox fx:id="roleComboBox"
+                          promptText="Choisissez un rôle"
+                          maxWidth="Infinity"
+                          style="-fx-background-color:#1e293b; -fx-text-fill:#f1f5f9;
+                                 -fx-border-color:#334155; -fx-border-radius:8;
+                                 -fx-background-radius:8; -fx-font-size:13px;"/>
+
+                <Button text="Créer un compte"
+                        onAction="#handleRegister"
+                        maxWidth="Infinity"
+                        style="-fx-background-color:#059669; -fx-text-fill:white;
+                               -fx-font-weight:bold; -fx-font-size:14px;
+                               -fx-padding:11 0 11 0; -fx-background-radius:8; -fx-cursor:hand;"/>
+
+                <Label fx:id="statusRegLabel" text=""
+                       wrapText="true" alignment="CENTER"
+                       style="-fx-text-fill:#ef4444; -fx-font-size:12px;"/>
+            </VBox>
+        </Tab>
+
+    </TabPane>
+</VBox>
