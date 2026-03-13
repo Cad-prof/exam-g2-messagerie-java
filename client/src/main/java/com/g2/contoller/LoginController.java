@@ -134,7 +134,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene      scene  = new Scene(loader.load(), 960, 640);
 
-            java.net.URL cssUrl = getClass().getResource("/com/g2/css/style.css");
+            java.net.URL cssUrl = getClass().getResource("/css/style.css");
             if (cssUrl == null) cssUrl = getClass().getResource("/css/style.css");
             if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
 
