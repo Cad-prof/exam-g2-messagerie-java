@@ -19,7 +19,7 @@ public class ServerConnection {
     private ObjectInputStream  in;
     private boolean            connected = false;
 
-    private final Consumer<Packet> onPacketReceived;
+    private Consumer<Packet> onPacketReceived;
 
     public ServerConnection(Consumer<Packet> onPacketReceived) {
         this.onPacketReceived = onPacketReceived;
@@ -69,6 +69,16 @@ public class ServerConnection {
             onPacketReceived.accept(Packet.error("Impossible d'envoyer le message."));
         }
     }
+
+    public void setOnPacketReceived(Consumer<Packet> handler) {
+        this.onPacketReceived = handler;
+    }
+
+    // private void notifyPacketReceived(Packet packet) {
+    //     if (onPacketReceived != null) {
+    //         onPacketReceived.accept(packet);
+    //     }
+    // }
 
     /** Ferme proprement la connexion. */
     public void disconnect() {

@@ -138,6 +138,3 @@ public class LoginController {
         statusLabel.setStyle(isError ? "-fx-text-fill: red;" : "-fx-text-fill: green;");
     }
 }
-```
-
-        ---

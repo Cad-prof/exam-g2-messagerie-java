@@ -1,0 +1,34 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.g2.ui.ChatController">
+
+    <!-- Gauche : liste des membres connectés -->
+    <left>
+        <VBox spacing="5" style="-fx-padding: 10; -fx-min-width: 150;">
+            <Label text="Membres connectés" style="-fx-font-weight: bold;"/>
+            <ListView fx:id="membersListView" VBox.vgrow="ALWAYS"
+                      onMouseClicked="#onMemberSelected"/>
+        </VBox>
+    </left>
+
+    <!-- Centre : conversation -->
+    <center>
+        <VBox spacing="5" style="-fx-padding: 10;">
+            <Label fx:id="chatWithLabel" text="Sélectionnez un membre"/>
+            <ListView fx:id="messagesListView" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="5">
+                <TextArea fx:id="messageInput" promptText="Votre message..."
+                          HBox.hgrow="ALWAYS" prefRowCount="2" wrapText="true"/>
+                <VBox spacing="5">
+                    <Button text="Envoyer" onAction="#onSend" maxWidth="Infinity"/>
+                    <Button text="Déconnexion" onAction="#onLogout" maxWidth="Infinity"/>
+                </VBox>
+            </HBox>
+            <Label fx:id="errorLabel" text="" style="-fx-text-fill: red;"/>
+        </VBox>
+    </center>
+</BorderPane>
