@@ -1,17 +1,18 @@
 package com.g2.dao;
 
-import com.g2.util.HibernateUtil;
 import com.g2.model.Message;
 import com.g2.model.User;
+import com.g2.util.HibernateUtil;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.logging.Logger;
 
 /**
-DAO pour l'entité Message.
-        * Fournit les opérations CRUD et les requêtes métier.
-        */
+ DAO pour l'entité Message.
+ * Fournit les opérations CRUD et les requêtes métier.
+ */
 public class MessageDAO {
 
     private static final Logger logger = Logger.getLogger(MessageDAO.class.getName());
@@ -37,9 +38,8 @@ public class MessageDAO {
         }
     }
 
-    // -------------------------
+
     // Mettre à jour un message (ex: changer le statut)
-    // -------------------------
 
     public void update(Message message) {
         EntityManager em = HibernateUtil.getEntityManager();
@@ -56,9 +56,7 @@ public class MessageDAO {
         }
     }
 
-    // -------------------------
     // Historique de conversation entre deux utilisateurs (RG8 — ordre chronologique)
-    // -------------------------
 
     public List<Message> findConversation(User user1, User user2) {
         EntityManager em = HibernateUtil.getEntityManager();
@@ -80,9 +78,7 @@ public class MessageDAO {
         }
     }
 
-    // -------------------------
     // Messages en attente pour un utilisateur (RG6 — statut ENVOYE)
-    // -------------------------
 
     public List<Message> findPendingMessages(User receiver) {
         EntityManager em = HibernateUtil.getEntityManager();
@@ -117,9 +113,7 @@ public class MessageDAO {
         }
     }
 
-    // -------------------------
     // Tous les messages reçus par un utilisateur
-    // -------------------------
 
     public List<Message> findMessagesByReceiver(User receiver) {
         EntityManager em = HibernateUtil.getEntityManager();
@@ -134,9 +128,7 @@ public class MessageDAO {
         }
     }
 
-    // -------------------------
     // Marquer tous les messages d'une conversation comme LU
-    // -------------------------
 
     public void markAsRead(User sender, User receiver) {
         EntityManager em = HibernateUtil.getEntityManager();
