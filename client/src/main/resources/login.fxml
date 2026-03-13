@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.g2.ui.LoginController"
+      spacing="10" style="-fx-padding: 20;">
+
+    <Label text="G2 — Messagerie Association" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+
+    <!-- Champ IP du serveur pour support LAN -->
+    <HBox spacing="5" alignment="CENTER_LEFT">
+        <Label text="Serveur :"/>
+        <TextField fx:id="serverIpField" promptText="localhost ou 192.168.x.x" prefWidth="200"/>
+        <Label text=":5000"/>
+    </HBox>
+
+    <TabPane fx:id="tabPane">
+        <!-- Onglet Connexion -->
+        <Tab text="Connexion" closable="false">
+            <VBox spacing="8" style="-fx-padding: 10;">
+                <TextField fx:id="loginUsernameField" promptText="Nom d'utilisateur"/>
+                <PasswordField fx:id="loginPasswordField" promptText="Mot de passe"/>
+                <Button text="Se connecter" onAction="#onLogin" maxWidth="Infinity"/>
+            </VBox>
+        </Tab>
+
+        <!-- Onglet Inscription -->
+        <Tab text="Inscription" closable="false">
+            <VBox spacing="8" style="-fx-padding: 10;">
+                <TextField fx:id="registerUsernameField" promptText="Nom d'utilisateur"/>
+                <PasswordField fx:id="registerPasswordField" promptText="Mot de passe"/>
+                <ComboBox fx:id="roleComboBox" maxWidth="Infinity"/>
+                <Button text="S'inscrire" onAction="#onRegister" maxWidth="Infinity"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+    <Label fx:id="statusLabel" text="" wrapText="true"/>
+</VBox>
