@@ -1,4 +1,4 @@
-package com.g2.server.contoller;
+package com.g2.contoller;
 
 import com.g2.network.ServerConnection;
 import javafx.application.Platform;

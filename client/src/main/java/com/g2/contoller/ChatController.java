@@ -1,4 +1,4 @@
-package com.g2.server.contoller;
+package com.g2.contoller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
