@@ -5,15 +5,11 @@ import java.net.Socket;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-/**
- * Gère la connexion Socket vers le serveur (singleton).
- * RG10 : en cas de perte de connexion, notifie le client et passe OFFLINE.
- */
 public class ServerConnection {
 
-    private static final Logger logger = Logger.getLogger(ServerConnection.class.getName());
-    private static final String HOST = "localhost";
-    private static final int    PORT = 5000;
+    private static final Logger logger   = Logger.getLogger(ServerConnection.class.getName());
+    private static final String HOST     = "localhost";
+    private static final int    PORT     = 5000;
 
     private static ServerConnection instance;
 
@@ -30,10 +26,11 @@ public class ServerConnection {
         return instance;
     }
 
-
-    // Connexion au serveur
-
+    // Connexion — ne reconnecte que si pas déjà connecté
     public boolean connect() {
+        if (connected && socket != null && !socket.isClosed()) {
+            return true; // déjà connecté, rien à faire
+        }
         try {
             socket    = new Socket(HOST, PORT);
             out       = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
@@ -43,12 +40,11 @@ public class ServerConnection {
             logger.info("Connecté au serveur " + HOST + ":" + PORT);
             return true;
         } catch (IOException e) {
-            logger.severe("Impossible de se connecter au serveur : " + e.getMessage());
+            connected = false;
+            logger.severe("Impossible de se connecter : " + e.getMessage());
             return false;
         }
     }
-
-    // Écoute des messages entrants (thread séparé)
 
     private void startListening() {
         Thread listener = new Thread(() -> {
@@ -57,18 +53,18 @@ public class ServerConnection {
                 while ((line = in.readLine()) != null) {
                     if (messageListener != null) {
                         final String msg = line;
-                        javafx.application.Platform.runLater(() -> messageListener.accept(msg));
+                        javafx.application.Platform.runLater(
+                                () -> messageListener.accept(msg));
                     }
                 }
             } catch (IOException e) {
                 logger.warning("[RG10] Connexion perdue : " + e.getMessage());
             } finally {
-                // RG10 : perte de connexion → notifier l'interface et passer OFFLINE
                 connected = false;
                 if (messageListener != null) {
                     javafx.application.Platform.runLater(() ->
-                            messageListener.accept("OFFLINE|Connexion au serveur perdue. Vous êtes maintenant hors ligne.")
-                    );
+                            messageListener.accept(
+                                    "OFFLINE|Connexion au serveur perdue."));
                 }
             }
         });
@@ -76,26 +72,19 @@ public class ServerConnection {
         listener.start();
     }
 
-
-    // Envoi d'une commande au serveur
-
     public void send(String command) {
         if (out != null && connected) {
             out.println(command);
+            logger.info("→ ENVOI : " + command);
+        } else {
+            logger.warning("send() ignoré — non connecté. Commande : " + command);
         }
     }
 
-    // Déconnexion propre
-
-
     public void disconnect() {
-        if (connected) send("LOGOUT");
-        try { if (socket != null) socket.close(); } catch (IOException ignored) {}
         connected = false;
+        try { if (socket != null) socket.close(); } catch (IOException ignored) {}
     }
-
-
-    // Getters / Setters
 
     public void setMessageListener(Consumer<String> listener) {
         this.messageListener = listener;

@@ -197,8 +197,8 @@ public class ChatController {
         conn.disconnect();
 
         try {
-            java.net.URL fxmlUrl = getClass().getResource("/com/g2//login.fxml");
-            if (fxmlUrl == null) fxmlUrl = getClass().getResource("/com/g2//login.fxm");
+            java.net.URL fxmlUrl = getClass().getResource("/com/g2/login.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getResource("/com/g2/login.fxm");
             if (fxmlUrl == null) {
                 showStatus("❌ Login.fxml introuvable.", false);
                 return;

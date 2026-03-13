@@ -10,9 +10,14 @@ import java.util.logging.Logger;
  * Serveur principal — écoute les connexions entrantes
  * et crée un thread par client (RG11).
  */
+
+/**
+ * Serveur principal — écoute les connexions entrantes
+ * et crée un thread par client (RG11).
+ */
 public class Server {
 
-    private static final int PORT = 8088;
+    private static final int PORT = 5000;
     private static final Logger logger = Logger.getLogger(Server.class.getName());
 
     // Map des clients connectés : username -> handler (RG3)
@@ -40,7 +45,9 @@ public class Server {
         }
     }
 
+    // -------------------------
     // Méthodes utilitaires
+    // -------------------------
 
     public static ConcurrentHashMap<String, ClientHandler> getConnectedClients() {
         return connectedClients;
@@ -50,4 +57,5 @@ public class Server {
         connectedClients.remove(username);
         logger.info("Client déconnecté et retiré : " + username);
     }
+
 }

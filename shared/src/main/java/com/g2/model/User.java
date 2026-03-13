@@ -1,13 +1,10 @@
 package com.g2.model;
 
 import javax.persistence.*;
-import lombok.Data;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Data
 @Table(name = "users")
 public class User {
 
@@ -55,5 +52,36 @@ public class User {
     protected void onCreate() {
         if (this.dateCreation == null) this.dateCreation = LocalDateTime.now();
         if (this.status == null)       this.status       = Status.OFFLINE;
+    }
+
+    // Getters & Setters
+    public Long          getId()              { return id; }
+    public void          setId(Long id)       { this.id = id; }
+
+    public String        getUsername()        { return username; }
+    public void          setUsername(String u){ this.username = u; }
+
+    public String        getPassword()        { return password; }
+    public void          setPassword(String p){ this.password = p; }
+
+    public Role          getRole()            { return role; }
+    public void          setRole(Role r)      { this.role = r; }
+
+    public Status        getStatus()          { return status; }
+    public void          setStatus(Status s)  { this.status = s; }
+
+    public LocalDateTime getDateCreation()           { return dateCreation; }
+    public void          setDateCreation(LocalDateTime d){ this.dateCreation = d; }
+
+    public List<Message> getMessagesSent()           { return messagesSent; }
+    public void          setMessagesSent(List<Message> m){ this.messagesSent = m; }
+
+    public List<Message> getMessagesReceived()           { return messagesReceived; }
+    public void          setMessagesReceived(List<Message> m){ this.messagesReceived = m; }
+
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", username='" + username + "', role=" + role
+                + ", status=" + status + "}";
     }
 }
