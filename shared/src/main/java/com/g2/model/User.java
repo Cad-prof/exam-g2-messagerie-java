@@ -30,7 +30,7 @@ public class User {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @Column(name = "date_creation", nullable = false, updatable = false)
+    @Column(name = "datecreation", nullable = false, updatable = false)
     private LocalDateTime dateCreation;
 
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
