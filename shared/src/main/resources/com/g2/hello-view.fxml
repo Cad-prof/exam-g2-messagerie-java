@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.g2.contoller.ChatController"
+            fx:controller="com.g2.server.contoller.ChatController"
             prefWidth="960" prefHeight="640"
             style="-fx-background-color: #0f172a;">
 

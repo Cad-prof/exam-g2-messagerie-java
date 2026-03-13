@@ -1,4 +1,4 @@
-package com.g2.contoller;
+package com.g2.server.contoller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -123,9 +123,9 @@ public class LoginController {
 
     private void openChatWindow(String username, String role) {
         try {
-            java.net.URL fxmlUrl = getClass().getResource("/sn/isi/chat_messagerie/hello-view.fxml");
-            if (fxmlUrl == null) fxmlUrl = getClass().getResource("/sn/isi/chat_messagerie/Chat.fxml");
-            if (fxmlUrl == null) fxmlUrl = getClass().getResource("/fxml/Chat.fxml");
+            java.net.URL fxmlUrl = getClass().getResource("/com/g2/hello-view.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getResource("/com/g2/hello-view.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getResource("/com/g2/hello-view.fxml");
             if (fxmlUrl == null) {
                 showError("Erreur : fichier FXML du chat introuvable.");
                 return;
@@ -134,7 +134,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Scene      scene  = new Scene(loader.load(), 960, 640);
 
-            java.net.URL cssUrl = getClass().getResource("/sn/isi/chat_messagerie/css/style.css");
+            java.net.URL cssUrl = getClass().getResource("css/style.css");
             if (cssUrl == null) cssUrl = getClass().getResource("/css/style.css");
             if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
 

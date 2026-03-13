@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class ServerConnection {
 
     private static final Logger logger = Logger.getLogger(ServerConnection.class.getName());
-    private static final String HOST = "localhost"; // Changer pour l'IP du serveur en réseau
+    private static final String HOST = "localhost";
     private static final int    PORT = 5000;
 
     private static ServerConnection instance;

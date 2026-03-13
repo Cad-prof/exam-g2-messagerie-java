@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.g2.contoller.LoginController"
+      fx:controller="com.g2.server.contoller.LoginController"
       styleClass="root-login"
       alignment="CENTER" spacing="0"
       prefWidth="440" prefHeight="560"

@@ -1,4 +1,4 @@
-package com.g2.contoller;
+package com.g2.server.contoller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -197,8 +197,8 @@ public class ChatController {
         conn.disconnect();
 
         try {
-            java.net.URL fxmlUrl = getClass().getResource("/sn/isi/chat_messagerie/login.fxml");
-            if (fxmlUrl == null) fxmlUrl = getClass().getResource("/sn/isi/chat_messagerie/login.fxml");
+            java.net.URL fxmlUrl = getClass().getResource("/com/g2//login.fxml");
+            if (fxmlUrl == null) fxmlUrl = getClass().getResource("/com/g2//login.fxm");
             if (fxmlUrl == null) {
                 showStatus("❌ Login.fxml introuvable.", false);
                 return;
@@ -207,7 +207,7 @@ public class ChatController {
             FXMLLoader loader  = new FXMLLoader(fxmlUrl);
             Scene      scene   = new Scene(loader.load(), 480, 560);
 
-            java.net.URL cssUrl = getClass().getResource("/sn/isi/chat_messagerie/css/style.css");
+            java.net.URL cssUrl = getClass().getResource("/css/style.css");
             if (cssUrl == null) cssUrl = getClass().getResource("/css/style.css");
             if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
 

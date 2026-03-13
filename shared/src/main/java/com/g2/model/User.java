@@ -1,6 +1,5 @@
 package com.g2.model;
 
-
 import javax.persistence.*;
 import lombok.Data;
 
@@ -20,7 +19,7 @@ public class User {
     private String username;
 
     @Column(name = "password", nullable = false)
-    private String password; // Mot de passe haché (BCrypt)
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -30,48 +29,31 @@ public class User {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @Column(name = "datecreation", nullable = false, updatable = false)
+    @Column(name = "date_creation", nullable = false, updatable = false)
     private LocalDateTime dateCreation;
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "sender",   cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Message> messagesSent;
 
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Message> messagesReceived;
 
-    // -------------------------
-    // Enums
-    // -------------------------
-
-    public enum Role {
-        ORGANISATEUR, MEMBRE, BENEVOLE
-    }
-
-    public enum Status {
-        ONLINE, OFFLINE
-    }
+    public enum Role   { ORGANISATEUR, MEMBRE, BENEVOLE }
+    public enum Status { ONLINE, OFFLINE }
 
     public User() {}
 
     public User(String username, String password, Role role) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-        this.status = Status.OFFLINE;
+        this.username     = username;
+        this.password     = password;
+        this.role         = role;
+        this.status       = Status.OFFLINE;
         this.dateCreation = LocalDateTime.now();
     }
 
-    // -------------------------
-    // Lifecycle JPA
-    // -------------------------
-
     @PrePersist
     protected void onCreate() {
-        if (this.dateCreation == null) {
-            this.dateCreation = LocalDateTime.now();
-        }
-        if (this.status == null) {
-            this.status = Status.OFFLINE;
-        }
+        if (this.dateCreation == null) this.dateCreation = LocalDateTime.now();
+        if (this.status == null)       this.status       = Status.OFFLINE;
     }
 }
