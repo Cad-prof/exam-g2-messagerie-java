@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 package com.g2;// TestDay2.java
+=======
+package com.g2;
+
+>>>>>>> 8f0d144 (Cient ServerConnection)
 import com.g2.dao.MessageDAO;
 import com.g2.dao.UserDAO;
 import com.g2.model.Message;
@@ -12,6 +17,35 @@ public class TestDay2 {
         UserDAO    userDAO = new UserDAO();
         MessageDAO msgDAO  = new MessageDAO();
         
+        // ensure schema clean: previous versions left old column `dateenvoi` that
+        // conflicts with current mapping. drop it if present so inserts succeed.
+        javax.persistence.EntityManager ddlEm = com.g2.util.HibernateUtil.getEntityManager();
+        try {
+            ddlEm.getTransaction().begin();
+            ddlEm.createNativeQuery("ALTER TABLE messages DROP COLUMN IF EXISTS dateenvoi").executeUpdate();
+            ddlEm.getTransaction().commit();
+            System.out.println("Removed legacy column dateenvoi (if existed)");
+        } catch (Exception e) {
+            if (ddlEm.getTransaction().isActive()) ddlEm.getTransaction().rollback();
+            // ignore; maybe table doesn't exist yet
+        } finally {
+            ddlEm.close();
+        }
+
+<<<<<<< HEAD
+        // --- Test 2.1 : inscription ---
+        User dudu = new User();
+        dudu.setUsername("dudu");
+        dudu.setPassword(PasswordUtil.hash("motdepasse233"));
+        dudu.setRole(User.Role.BENEVOLE);
+        try {
+            userDAO.save(dudu);
+            System.out.println("dudu inscrit !");
+        } catch (Exception e) {
+            System.out.println("dudu déjà présent, on continue");
+        }
+
+        // --- Test 2.2 : recherche ---
         // ensure schema clean: previous versions left old column `dateenvoi` that
         // conflicts with current mapping. drop it if present so inserts succeed.
         javax.persistence.EntityManager ddlEm = com.g2.util.HibernateUtil.getEntityManager();
@@ -87,6 +121,13 @@ public class TestDay2 {
         } finally {
             if (em != null) em.close();
         }
+        User alice = userDAO.findByUsername("alice"); // inséré Jour 1
+        // make sure we use managed dudu instance
+        dudu = userDAO.findByUsername("dudu");
+        Message msg = new Message(alice, dudu, "Salut dudu !");
+        System.out.println("(debug) message avant save dateEnvoi=" + msg.getDateEnvoi());
+        msgDAO.save(msg);
+        System.out.println("Message sauvegardé ID : " + msg.getId());
 
         User alice = userDAO.findByUsername("alice"); // inséré Jour 1
         // make sure we use managed dudu instance
@@ -101,4 +142,8 @@ public class TestDay2 {
         conv.forEach(m -> System.out.println("  → " + m.getSender().getUsername()
                 + " : " + m.getContenu() + " [" + m.getStatut() + "]"));
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 8f0d144 (Cient ServerConnection)
