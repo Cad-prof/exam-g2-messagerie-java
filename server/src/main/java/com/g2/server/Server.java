@@ -1,4 +1,4 @@
-package com.g2;
+package com.g2.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
