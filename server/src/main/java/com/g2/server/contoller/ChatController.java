@@ -170,13 +170,13 @@ public class ChatController {
             return;
         }
         if (selectedReceiver == null) {
-            showStatus("❌ Sélectionnez un destinataire.", false);
+            showStatus(" Sélectionnez un destinataire.", false);
             return;
         }
         String content = messageField.getText().trim();
         if (content.isEmpty()) return;
         if (content.length() > 1000) {
-            showStatus("❌ Message trop long (max 1000 caractères). [RG7]", false);
+            showStatus(" Message trop long (max 1000 caractères). [RG7]", false);
             return;
         }
         conn.send("SEND|" + selectedReceiver + "|" + content);
@@ -237,7 +237,7 @@ public class ChatController {
             return;
         }
         membersList.getItems().clear();
-        currentChatLabel.setText("📋 Liste complète des membres inscrits");
+        currentChatLabel.setText(" Liste complète des membres inscrits");
         inListMode = true;
         conn.send("LIST");
     }
@@ -253,7 +253,7 @@ public class ChatController {
             // RG10 — perte de connexion
             case "OFFLINE" -> {
                 String msg = parts.length > 1 ? parts[1] : "Connexion perdue.";
-                connectedUserLabel.setText("🔴 Hors ligne");
+                connectedUserLabel.setText(" Hors ligne");
                 connectedUserLabel.setStyle("-fx-text-fill:#ef4444;");
                 messageField.setDisable(true);
                 messageField.setPromptText("Connexion perdue — relancez l'application");
@@ -278,7 +278,7 @@ public class ChatController {
                 String uname  = parts.length > 1 ? parts[1] : "?";
                 String status = parts.length > 2 ? parts[2] : "OFFLINE";
                 String mrole  = parts.length > 3 ? parts[3] : "";
-                String icon   = "ONLINE".equals(status) ? "🟢" : "⚫";
+                String icon   = "ONLINE".equals(status) ? "🟢" : "Déconnecté |";
                 membersList.getItems().add(icon + " " + uname + " [" + mrole + "]");
             }
 
@@ -289,7 +289,7 @@ public class ChatController {
                 inListMode = true;
                 membersList.getItems().clear();
                 String count = parts.length > 1 ? parts[1] : "?";
-                currentChatLabel.setText("📋 Liste complète — " + count + " membres inscrits");
+                currentChatLabel.setText(" Liste complète — " + count + " membres inscrits");
             }
 
             case "USER" -> {
@@ -297,7 +297,7 @@ public class ChatController {
                 String uname   = parts.length > 1 ? parts[1] : "?";
                 String urole   = parts.length > 2 ? parts[2] : "";
                 String ustatus = parts.length > 3 ? parts[3] : "OFFLINE";
-                String icon    = "ONLINE".equals(ustatus) ? "🟢" : "⚫";
+                String icon    = "ONLINE".equals(ustatus) ? "🟢" : "Déconnecté |";
                 membersList.getItems().add(icon + " " + uname + " [" + urole + "]");
             }
 
@@ -313,7 +313,7 @@ public class ChatController {
                 if (sender.equals(selectedReceiver)) {
                     addBubble(content, false);
                 } else {
-                    showStatus("💬 Nouveau message de " + sender, true);
+                    showStatus(" Nouveau message de " + sender, true);
                 }
             }
 
@@ -336,13 +336,13 @@ public class ChatController {
             case "PENDING" -> {
                 String sender  = parts.length > 1 ? parts[1] : "?";
                 String content = parts.length > 2 ? parts[2] : "";
-                showStatus("📩 Message en attente de " + sender, true);
+                showStatus(" Message en attente de " + sender, true);
                 if (sender.equals(selectedReceiver)) addBubble(content, false);
             }
 
             // Erreurs et confirmations
-            case "ERROR" -> showStatus("❌ " + (parts.length > 1 ? parts[1] : "Erreur."), false);
-            case "OK"    -> { if (parts.length > 1) showStatus("✅ " + parts[1], true); }
+            case "ERROR" -> showStatus(" " + (parts.length > 1 ? parts[1] : "Erreur."), false);
+            case "OK"    -> { if (parts.length > 1) showStatus("Ok " + parts[1], true); }
         }
     }
 

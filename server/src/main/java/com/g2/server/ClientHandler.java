@@ -113,7 +113,7 @@ public class ClientHandler implements Runnable {
 
         logger.info("[RG12] Connexion : " + username + " (" + user.getRole() + ") → ONLINE");
 
-        // ✅ FORMAT CORRECT : OK|LOGIN|ROLE  (lu par LoginController)
+        // FORMAT CORRECT : OK|LOGIN|ROLE  (lu par LoginController)
         send("OK|LOGIN|" + user.getRole());
 
         // RG6 : messages en attente

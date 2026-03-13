@@ -37,7 +37,7 @@ public class LoginController {
         });
     }
 
-    // ── Connexion ──────────────────────────────────────────────────
+    // Connexion
 
     @FXML
     private void handleLogin() {
@@ -85,7 +85,7 @@ public class LoginController {
         // Ignorer silencieusement tout le reste (MEMBERS_START, MEMBER, etc.)
     }
 
-    // ── Inscription ────────────────────────────────────────────────
+    //  Inscription
 
     @FXML
     private void handleRegister() {
@@ -110,7 +110,7 @@ public class LoginController {
                     conn.setMessageListener(null); // couper après réponse
                     showRegSuccess("✅ Compte créé ! Connectez-vous.");
                 } else {
-                    showRegError("❌ " + (parts.length > 1 ? parts[1] : "Erreur inscription."));
+                    showRegError(" " + (parts.length > 1 ? parts[1] : "Erreur inscription."));
                 }
             }));
             conn.send("REGISTER|" + username + "|" + password + "|" + role);
@@ -119,7 +119,7 @@ public class LoginController {
         }
     }
 
-    // ── Ouverture du Chat ──────────────────────────────────────────
+    //  Ouverture du Chat
 
     private void openChatWindow(String username, String role) {
         try {
@@ -156,7 +156,7 @@ public class LoginController {
         }
     }
 
-    // ── Helpers UI ─────────────────────────────────────────────────
+    //  Helpers UI
 
     private void showError(String msg) {
         if (statusLabel != null) {
