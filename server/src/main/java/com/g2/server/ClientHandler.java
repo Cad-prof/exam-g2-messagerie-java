@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-
 public class ClientHandler implements Runnable {
 
     private static final Logger logger = Logger.getLogger(ClientHandler.class.getName());
@@ -21,48 +20,37 @@ public class ClientHandler implements Runnable {
     private final ConcurrentHashMap<String, ClientHandler> connectedClients;
 
     private BufferedReader in;
-    private PrintWriter out;
-    private User currentUser;
+    private PrintWriter    out;
+    private User           currentUser;
 
     private final UserDAO    userDAO    = new UserDAO();
     private final MessageDAO messageDAO = new MessageDAO();
 
     public ClientHandler(Socket socket, ConcurrentHashMap<String, ClientHandler> connectedClients) {
-        this.socket = socket;
+        this.socket           = socket;
         this.connectedClients = connectedClients;
     }
-
-    // Boucle principale  : thread séparé par client
 
     @Override
     public void run() {
         try {
             in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-
             String line;
-            while ((line = in.readLine()) != null) {
-                handleCommand(line.trim());
-            }
-
+            while ((line = in.readLine()) != null) handleCommand(line.trim());
         } catch (IOException e) {
-            // RG10 : perte réseau détectée côté serveur
-            logger.warning("[RG10] Perte de connexion pour "
-                    + (currentUser != null ? currentUser.getUsername() : "inconnu")
-                    + " : " + e.getMessage());
+            logger.warning("[RG10] Perte connexion : "
+                    + (currentUser != null ? currentUser.getUsername() : "inconnu"));
         } finally {
-            // RG4 + RG10 : toujours passer OFFLINE en quittant
             disconnect();
         }
     }
-
-
-    // Routeur de commandes
 
     private void handleCommand(String line) {
         if (line.isEmpty()) return;
         String[] parts   = line.split("\\|", -1);
         String   command = parts[0].toUpperCase();
+        logger.info("← COMMANDE : " + line);
 
         switch (command) {
             case "REGISTER" -> handleRegister(parts);
@@ -71,175 +59,123 @@ public class ClientHandler implements Runnable {
             case "SEND"     -> handleSend(parts);
             case "HISTORY"  -> handleHistory(parts);
             case "MEMBERS"  -> handleMembers();
-            case "LIST"     -> handleListUsers(); // RG13
+            case "LIST"     -> handleListUsers();
             default         -> send("ERROR|Commande inconnue : " + command);
         }
     }
 
-    // REGISTER|username|password|role
-    // RG1 : username unique | RG9 : mot de passe haché
-
+    // REGISTER — RG1, RG9
     private void handleRegister(String[] parts) {
-        if (parts.length < 4) { send("ERROR Usage : REGISTER|username|password|role"); return; }
+        if (parts.length < 4) { send("ERROR|Usage : REGISTER|username|password|role"); return; }
 
         String username = parts[1].trim();
         String password = parts[2];
         String roleStr  = parts[3].toUpperCase().trim();
 
-        if (username.isEmpty()) { send("ERROR|Le nom d'utilisateur ne peut pas être vide."); return; }
-        if (password.isEmpty()) { send("ERROR|Le mot de passe ne peut pas être vide."); return; }
+        if (username.isEmpty()) { send("ERROR|Username vide."); return; }
+        if (password.isEmpty()) { send("ERROR|Mot de passe vide."); return; }
 
-        // Validation rôle
         User.Role role;
-        try {
-            role = User.Role.valueOf(roleStr);
-        } catch (IllegalArgumentException e) {
-            send("ERROR|Rôle invalide. Valeurs : ORGANISATEUR, MEMBRE, BENEVOLE");
-            return;
+        try { role = User.Role.valueOf(roleStr); }
+        catch (IllegalArgumentException e) {
+            send("ERROR|Rôle invalide. Valeurs : ORGANISATEUR, MEMBRE, BENEVOLE"); return;
         }
 
-        // RG1 : username unique
         if (userDAO.findByUsername(username) != null) {
-            send("ERROR|Ce nom d'utilisateur est déjà pris.");
-            return;
+            send("ERROR|Ce nom d'utilisateur est déjà pris. (RG1)"); return;
         }
 
-        // RG9 : hachage BCrypt
-        String hashedPassword = PasswordUtil.hash(password);
-        userDAO.save(new User(username, hashedPassword, role));
-
-        logger.info("Inscription : " + username + " | Rôle : " + role);
-        send("OK Inscription réussie. Vous pouvez vous connecter.");
+        userDAO.save(new User(username, PasswordUtil.hash(password), role));
+        logger.info("[RG12] Inscription : " + username + " | Rôle : " + role);
+        send("OK|Inscription réussie. Vous pouvez vous connecter.");
     }
 
-    // LOGIN|username|password
-    // RG2 : credentials | RG3 : unicité session | RG4 : ONLINE
-
+    // LOGIN — RG2, RG3, RG4
     private void handleLogin(String[] parts) {
         if (parts.length < 3) { send("ERROR|Usage : LOGIN|username|password"); return; }
 
         String username = parts[1].trim();
         String password = parts[2];
 
-        // RG2 : vérification credentials
         User user = userDAO.findByUsername(username);
         if (user == null || !PasswordUtil.verify(password, user.getPassword())) {
-            send("ERROR|Identifiants incorrects. (RG2)");
-            return;
+            send("ERROR|Identifiants incorrects. (RG2)"); return;
         }
 
-        // RG3 : un seul login à la fois
         if (connectedClients.containsKey(username)) {
-            send("ERROR|Cet utilisateur est déjà connecté sur un autre appareil. (RG3)");
-            return;
+            send("ERROR|Déjà connecté sur un autre appareil. (RG3)"); return;
         }
 
-        // RG4 : statut → ONLINE
         currentUser = user;
         currentUser.setStatus(User.Status.ONLINE);
         userDAO.update(currentUser);
         connectedClients.put(username, this);
 
-        logger.info("[RG12] Connexion : " + username + " → ONLINE");
-        send("OK|Bienvenue " + username + "!");
+        logger.info("[RG12] Connexion : " + username + " (" + user.getRole() + ") → ONLINE");
 
-        // RG6 : livraison messages en attente
+        // ✅ FORMAT CORRECT : OK|LOGIN|ROLE  (lu par LoginController)
+        send("OK|LOGIN|" + user.getRole());
+
+        // RG6 : messages en attente
         deliverPendingMessages();
 
-        // Envoyer la liste des membres automatiquement
+        // Contacts selon le rôle
         handleMembers();
     }
 
-    // LOGOUT — RG4 : OFFLINE
-
+    // LOGOUT — RG4
     private void handleLogout() {
-        if (currentUser == null) { send("ERROR|Vous n'êtes pas connecté."); return; }
+        if (currentUser == null) { send("ERROR|Non connecté."); return; }
         send("OK|Déconnexion réussie.");
         disconnect();
     }
 
-
-    // SEND|receiverUsername|contenu
-    // RG2 : authentifié | RG5 : expéditeur ONLINE + destinataire existant
-    // RG6 : stockage si OFFLINE | RG7 : contenu valide
-
+    // SEND — RG5, RG6, RG7
     private void handleSend(String[] parts) {
-        // RG2
-        if (currentUser == null) {
-            send("ERROR|Vous devez être connecté pour envoyer un message. (RG2)");
-            return;
+        if (!checkAuth()) return;
+        if (currentUser.getRole() == User.Role.BENEVOLE) {
+            send("ERROR|Les BENEVOLES ne peuvent pas envoyer de messages."); return;
         }
         if (parts.length < 3) { send("ERROR|Usage : SEND|destinataire|contenu"); return; }
 
         String receiverUsername = parts[1].trim();
         String contenu          = parts[2];
 
-        // RG7 : contenu non vide
-        if (contenu == null || contenu.isBlank()) {
-            send("ERROR|Le message ne peut pas être vide. (RG7)");
-            return;
-        }
-        // RG7 : max 1000 caractères
-        if (contenu.length() > 1000) {
-            send("ERROR|Le message dépasse 1000 caractères (" + contenu.length() + "/1000). (RG7)");
-            return;
-        }
+        if (contenu == null || contenu.isBlank()) { send("ERROR|Message vide. (RG7)"); return; }
+        if (contenu.length() > 1000) { send("ERROR|Message > 1000 caractères. (RG7)"); return; }
 
-        // RG5 : destinataire doit exister
         User receiver = userDAO.findByUsername(receiverUsername);
-        if (receiver == null) {
-            send("ERROR|Destinataire introuvable : " + receiverUsername + " (RG5)");
-            return;
+        if (receiver == null) { send("ERROR|Destinataire introuvable. (RG5)"); return; }
+
+        if (currentUser.getRole() == User.Role.MEMBRE
+                && receiver.getRole() == User.Role.BENEVOLE) {
+            send("ERROR|Vous ne pouvez pas envoyer un message à un BENEVOLE."); return;
         }
 
-        // RG5 : expéditeur doit être ONLINE (vérification en base)
-        User senderCheck = userDAO.findByUsername(currentUser.getUsername());
-        if (senderCheck == null || senderCheck.getStatus() != User.Status.ONLINE) {
-            send("ERROR|Votre session a expiré. Reconnectez-vous. (RG5)");
-            return;
-        }
-
-        // Sauvegarde du message
         Message message = new Message(currentUser, receiver, contenu);
         messageDAO.save(message);
-
-        logger.info("[RG12] Message : " + currentUser.getUsername()
-                + " → " + receiverUsername + " | " + contenu.length() + " car.");
+        logger.info("[RG12] Message : " + currentUser.getUsername() + " → " + receiverUsername);
         send("OK|Message envoyé.");
 
-        // RG6 : livraison immédiate si ONLINE
         ClientHandler receiverHandler = connectedClients.get(receiverUsername);
         if (receiverHandler != null) {
             receiverHandler.send("MESSAGE|" + currentUser.getUsername() + "|" + contenu);
             message.setStatut(Message.Statut.RECU);
             messageDAO.update(message);
-            logger.info("[RG6] Livré immédiatement à " + receiverUsername + " (ONLINE)");
         } else {
-            logger.info("[RG6] " + receiverUsername + " OFFLINE → message en attente");
+            logger.info("[RG6] " + receiverUsername + " OFFLINE → message stocké");
         }
     }
 
-    // HISTORY|otherUsername
-    // RG2 : authentifié | RG8 : ordre chronologique
-
+    // HISTORY — RG8
     private void handleHistory(String[] parts) {
-        // RG2
-        if (currentUser == null) {
-            send("ERROR|Vous devez être connecté pour consulter les messages. (RG2)");
-            return;
-        }
+        if (!checkAuth()) return;
         if (parts.length < 2) { send("ERROR|Usage : HISTORY|username"); return; }
 
-        String otherUsername = parts[1].trim();
-        User other = userDAO.findByUsername(otherUsername);
-        if (other == null) { send("ERROR|Utilisateur introuvable : " + otherUsername); return; }
+        User other = userDAO.findByUsername(parts[1].trim());
+        if (other == null) { send("ERROR|Utilisateur introuvable."); return; }
 
-        // RG8 : ORDER BY dateEnvoi ASC (géré dans MessageDAO.findConversation)
         List<Message> history = messageDAO.findConversation(currentUser, other);
-
-        logger.info("[RG12] Historique : " + currentUser.getUsername()
-                + " ↔ " + otherUsername + " | " + history.size() + " message(s)");
-
         send("HISTORY_START|" + history.size());
         for (Message m : history) {
             send("MSG|" + m.getSender().getUsername()
@@ -249,52 +185,49 @@ public class ClientHandler implements Runnable {
         send("HISTORY_END");
     }
 
-    // MEMBERS — tous les membres sauf soi-même (RG2)
-
-
+    // MEMBERS — contacts filtrés selon le rôle
     private void handleMembers() {
-        if (currentUser == null) { send("ERROR|Vous devez être connecté. (RG2)"); return; }
+        if (!checkAuth()) return;
 
         List<User> users = userDAO.findAll();
-        send("MEMBERS_START|" + users.size());
+        send("MEMBERS_START");
         for (User u : users) {
-            if (!u.getUsername().equals(currentUser.getUsername())) {
-                send("MEMBER|" + u.getUsername() + "|" + u.getStatus());
+            if (u.getUsername().equals(currentUser.getUsername())) continue;
+            boolean canSee = switch (currentUser.getRole()) {
+                case ORGANISATEUR -> true;
+                case MEMBRE       -> u.getRole() != User.Role.BENEVOLE;
+                case BENEVOLE     -> false;
+            };
+            if (canSee) {
+                String status = u.getStatus() == User.Status.ONLINE ? "ONLINE" : "OFFLINE";
+                send("MEMBER|" + u.getUsername() + "|" + status + "|" + u.getRole());
             }
         }
         send("MEMBERS_END");
     }
 
-    // LIST — liste avec rôles (RG13 : ORGANISATEUR uniquement)
-
-
+    // LIST — RG13 ORGANISATEUR uniquement
     private void handleListUsers() {
-        if (currentUser == null) { send("ERROR|Vous devez être connecté. (RG2)"); return; }
+        if (!checkAuth()) return;
         if (currentUser.getRole() != User.Role.ORGANISATEUR) {
-            send("ERROR|Accès refusé. Réservé aux ORGANISATEURS. (RG13)");
-            return;
+            send("ERROR|Accès refusé. Réservé aux ORGANISATEURS. (RG13)"); return;
         }
 
         List<User> users = userDAO.findAll();
-        logger.info("[RG12] Liste complète consultée par : " + currentUser.getUsername());
-
+        logger.info("[RG13] Liste consultée par : " + currentUser.getUsername());
         send("LIST_START|" + users.size());
         for (User u : users) {
-            send("USER|" + u.getUsername() + "|" + u.getRole() + "|" + u.getStatus());
+            String status = u.getStatus() == User.Status.ONLINE ? "ONLINE" : "OFFLINE";
+            send("USER|" + u.getUsername() + "|" + u.getRole() + "|" + status);
         }
         send("LIST_END");
     }
 
-    // Livraison messages en attente — RG6
-
+    // RG6 : messages en attente
     private void deliverPendingMessages() {
         List<Message> pending = messageDAO.findPendingMessages(currentUser);
         if (pending.isEmpty()) return;
-
-        logger.info("[RG6] Livraison de " + pending.size()
-                + " message(s) en attente pour " + currentUser.getUsername());
-
-        send("PENDING|" + pending.size() + " message(s) en attente.");
+        logger.info("[RG6] " + pending.size() + " message(s) en attente pour " + currentUser.getUsername());
         for (Message m : pending) {
             send("MESSAGE|" + m.getSender().getUsername() + "|" + m.getContenu());
             m.setStatut(Message.Statut.RECU);
@@ -302,26 +235,30 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // Déconnexion propre — RG4 + RG10 + RG12
+    private boolean checkAuth() {
+        if (currentUser == null) {
+            send("ERROR|Vous devez être connecté. (RG2)");
+            return false;
+        }
+        return true;
+    }
 
-
+    // RG4 + RG10 + RG12
     private void disconnect() {
         if (currentUser != null) {
-            // RG4 : statut → OFFLINE
             currentUser.setStatus(User.Status.OFFLINE);
             userDAO.update(currentUser);
             connectedClients.remove(currentUser.getUsername());
-
-            // RG12 : journalisation
             logger.info("[RG12] Déconnexion : " + currentUser.getUsername() + " → OFFLINE");
             currentUser = null;
         }
         try { socket.close(); } catch (IOException ignored) {}
     }
 
-    // Envoi au client
-
     public void send(String message) {
-        if (out != null) out.println(message);
+        if (out != null) {
+            out.println(message);
+            logger.info("→ ENVOI : " + message);
+        }
     }
 }
