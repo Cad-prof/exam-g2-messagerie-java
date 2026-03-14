@@ -11,6 +11,8 @@ import javafx.stage.Stage;
 import com.g2.model.User;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -69,7 +71,11 @@ public class LoginController {
             return;
         }
 
-        connectIfNeeded(host);
+        try {
+            connectIfNeeded(host);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         connection.send(Packet.login(username, password));
     }
 
@@ -86,15 +92,26 @@ public class LoginController {
             return;
         }
 
-        connectIfNeeded(host);
+        try {
+            connectIfNeeded(host);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         connection.send(Packet.register(username, password, role));
     }
 
     /** Connecte au serveur si pas encore connecté. */
-    private void connectIfNeeded(String host) {
+    private void connectIfNeeded(String host) throws FileNotFoundException {
+        Properties config = new Properties();
+        try {
+            config.load(new FileInputStream("config.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String port = config.getProperty("server.port");
         if (!connection.isConnected()) {
             try {
-                connection.connect(host, 5000);
+                connection.connect(host, Integer.parseInt(port));
             } catch (Exception e) {
                 showStatus("Impossible de joindre " + host + ":8088", true);
             }
