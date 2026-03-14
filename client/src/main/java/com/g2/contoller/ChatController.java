@@ -166,7 +166,7 @@ public class ChatController {
     @FXML
     private void handleSendMessage() {
         if ("BENEVOLE".equals(currentRole)) {
-            showStatus("❌ Les bénévoles ne peuvent pas envoyer de messages privés.", false);
+            showStatus("Les bénévoles ne peuvent pas envoyer de messages privés.", false);
             return;
         }
         if (selectedReceiver == null) {
@@ -200,7 +200,7 @@ public class ChatController {
             java.net.URL fxmlUrl = getClass().getResource("/com/g2/login.fxml");
             if (fxmlUrl == null) fxmlUrl = getClass().getResource("/com/g2/login.fxm");
             if (fxmlUrl == null) {
-                showStatus("❌ Login.fxml introuvable.", false);
+                showStatus("Login.fxml introuvable.", false);
                 return;
             }
 
@@ -223,7 +223,7 @@ public class ChatController {
             ((Stage) messageField.getScene().getWindow()).close();
 
         } catch (Exception ex) {
-            showStatus("❌ Erreur retour connexion : " + ex.getMessage(), false);
+            showStatus("Erreur retour connexion : " + ex.getMessage(), false);
             ex.printStackTrace();
         }
     }
@@ -233,7 +233,7 @@ public class ChatController {
     @FXML
     private void handleListAll() {
         if (!"ORGANISATEUR".equals(currentRole)) {
-            showStatus("❌ Accès réservé aux organisateurs.", false);
+            showStatus("Accès réservé aux organisateurs.", false);
             return;
         }
         membersList.getItems().clear();

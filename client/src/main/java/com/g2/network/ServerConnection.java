@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 public class ServerConnection {
 
     private static final Logger logger   = Logger.getLogger(ServerConnection.class.getName());
-    private static final String HOST     = "localhost";
+    private static final String HOST     = "10.1.7.160";
     private static final int    PORT     = 5000;
 
     private static ServerConnection instance;
